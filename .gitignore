@@ -1,0 +1,23 @@
+# Gradle files
+.gradle/
+build/
+*/build/
+.kotlin
+
+# Local configuration file (contains absolute paths to your local SDK)
+local.properties
+
+# IDE files (Android Studio / IntelliJ)
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Mac/Windows OS hidden files
+.DS_Store
+Thumbs.db
+
+# Keystore files and signing secrets (CRITICAL FOR SECURITY)
+*.jks
+*.keystore
+keystore.properties
