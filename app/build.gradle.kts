@@ -1,19 +1,21 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    id("com.google.devtools.ksp")
+    alias(libs.plugins.ksp.plugin)
+    alias(libs.plugins.hilt.plugin)
+    id("kotlin-parcelize")
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
     namespace = "com.example.shoppinglist"
-    compileSdk {
-        version = release(37)
-    }
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.shoppinglist"
         minSdk = 24
-        targetSdk = 37
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -22,23 +24,42 @@ android {
 
     buildTypes {
         release {
-            optimization {
-                enable = false
-            }
+            isMinifyEnabled = false
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     buildFeatures {
         compose = true
+        viewBinding = true
+    }
+    kotlinOptions {
+        jvmTarget = "17"
     }
 }
 
 dependencies {
-    implementation(libs.androidx.room3.runtime)
-    ksp(libs.androidx.room3.compiler)
+    implementation(libs.androidx.activity.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.core.ktx)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.compose.material3.adaptive)
+    implementation(libs.androidx.compose.material3.adaptive.layout)
+    implementation(libs.androidx.compose.material3.adaptive.navigation)
+    implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.material)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)

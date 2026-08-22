@@ -1,13 +1,14 @@
 package com.example.shoppinglist.repositories
 
-import androidx.room3.Dao
-import androidx.room3.Query
-import androidx.room3.Transaction
-import com.example.shoppinglist.entities.ShoppingListWithProducts
+import androidx.room.Dao
+import androidx.room.Query
+import androidx.room.Transaction
+import com.example.shoppinglist.dtos.ShoppingListWithProducts
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ShoppingListRepository {
     @Transaction
     @Query("SELECT * FROM shopping_lists")
-    suspend fun getShoppingListsWithProducts(): List<ShoppingListWithProducts>
+    fun getShoppingListsWithProducts(): Flow<List<ShoppingListWithProducts>>
 }
