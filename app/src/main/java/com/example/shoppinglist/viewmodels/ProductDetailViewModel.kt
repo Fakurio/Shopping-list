@@ -6,36 +6,31 @@ import androidx.lifecycle.viewModelScope
 import com.example.shoppinglist.dtos.ProductDto
 import com.example.shoppinglist.repositories.ProductRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ProductViewModel @Inject constructor(
+class ProductDetailViewModel @Inject constructor(
     private val productRepository: ProductRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val productId: Int? = savedStateHandle["productId"]
+    private val productId: Int = checkNotNull(savedStateHandle["productId"])
 
-    val products: StateFlow<List<ProductDto>> = productRepository
-        .getProductList()
+    val product: StateFlow<ProductDto?> = productRepository
+        .getProductById(productId)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
+            initialValue = null
         )
 
-    val productDetails: StateFlow<ProductDto?> = if (productId != null) {
-        productRepository.getProductById(productId)
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5000),
-                initialValue = null
-            )
-    } else {
-        MutableStateFlow(null)
+    fun deleteProduct() {
+        viewModelScope.launch {
+            productRepository.deleteById(productId)
+        }
     }
 }

@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -20,17 +22,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.shoppinglist.dtos.formattedInterval
-import com.example.shoppinglist.viewmodels.ProductViewModel
+import com.example.shoppinglist.viewmodels.ProductDetailViewModel
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductDetailScreen(
-    viewModel: ProductViewModel = hiltViewModel(),
-    onBack: () -> Unit
+    viewModel: ProductDetailViewModel = hiltViewModel(),
+    onBack: () -> Unit,
+    onEditClick: (Int) -> Unit = {}
 ) {
-    val product by viewModel.productDetails.collectAsState()
+    val product by viewModel.product.collectAsState()
     val dateFormatter = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
 
     Scaffold(
@@ -40,6 +43,19 @@ fun ProductDetailScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    product?.let {
+                        IconButton(onClick = { onEditClick(it.id) }) {
+                            Icon(Icons.Default.Edit, contentDescription = "Edit")
+                        }
+                        IconButton(onClick = { 
+                            viewModel.deleteProduct()
+                            onBack()
+                        }) {
+                            Icon(Icons.Default.Delete, contentDescription = "Delete")
+                        }
                     }
                 }
             )
@@ -62,8 +78,9 @@ fun ProductDetailScreen(
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.padding(top = 8.dp)
                 )
+                val lastBoughtText = currentProduct.lastBoughtDate?.let { dateFormatter.format(it) } ?: "Never"
                 Text(
-                    text = "Last Bought: ${dateFormatter.format(currentProduct.lastBoughtDate)}",
+                    text = "Last Bought: $lastBoughtText",
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.padding(top = 8.dp)
                 )

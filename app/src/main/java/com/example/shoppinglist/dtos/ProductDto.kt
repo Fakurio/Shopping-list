@@ -3,19 +3,19 @@ package com.example.shoppinglist.dtos
 import android.os.Parcelable
 import com.example.shoppinglist.enums.IntervalUnit
 import kotlinx.parcelize.Parcelize
-import kotlinx.serialization.Serializable
 import java.util.Date
+import java.util.UUID
 
-@Serializable
 @Parcelize
 data class ProductDto(
     val id: Int,
     val name: String,
     val quantity: Long,
-    @Serializable(with = DateSerializer::class)
-    val lastBoughtDate: Date,
+    val lastBoughtDate: Date?,
     val intervalValue: Int,
-    val intervalUnit: IntervalUnit
+    val intervalUnit: IntervalUnit,
+    val activeNotificationId: UUID?,
+    val isTracked: Boolean
 ) : Parcelable
 
 val ProductDto.formattedInterval: String
