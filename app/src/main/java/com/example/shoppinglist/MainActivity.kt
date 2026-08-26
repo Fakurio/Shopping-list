@@ -13,9 +13,14 @@ import androidx.navigation.compose.rememberNavController
 import com.example.shoppinglist.ui.ProductDetailScreen
 import com.example.shoppinglist.ui.ProductFormScreen
 import com.example.shoppinglist.ui.ProductListScreen
+import com.example.shoppinglist.ui.ShoppingListDetailScreen
+import com.example.shoppinglist.ui.ShoppingListFormScreen
+import com.example.shoppinglist.ui.ShoppingListListScreen
 import com.example.shoppinglist.ui.theme.ShoppingListTheme
 import com.example.shoppinglist.viewmodels.AddProductViewModel
+import com.example.shoppinglist.viewmodels.CreateShoppingListViewModel
 import com.example.shoppinglist.viewmodels.EditProductViewModel
+import com.example.shoppinglist.viewmodels.EditShoppingListViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.serialization.Serializable
 
@@ -30,6 +35,18 @@ object AddProductRoute
 
 @Serializable
 data class EditProductRoute(val productId: Int)
+
+@Serializable
+object CreateShoppingListRoute
+
+@Serializable
+object ShoppingListListRoute
+
+@Serializable
+data class EditShoppingListRoute(val listId: Int)
+
+@Serializable
+data class ShoppingListDetailRoute(val listId: Int)
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -54,6 +71,12 @@ class MainActivity : ComponentActivity() {
                             },
                             onEditProductClick = { productId ->
                                 navController.navigate(EditProductRoute(productId))
+                            },
+                            onCreateShoppingListClick = {
+                                navController.navigate(CreateShoppingListRoute)
+                            },
+                            onViewShoppingListsClick = {
+                                navController.navigate(ShoppingListListRoute)
                             }
                         )
                     }
@@ -91,6 +114,54 @@ class MainActivity : ComponentActivity() {
                                 navController.popBackStack()
                             },
                             onBack = { navController.popBackStack() }
+                        )
+                    }
+                    composable<CreateShoppingListRoute> {
+                        val viewModel: CreateShoppingListViewModel = hiltViewModel()
+                        ShoppingListFormScreen(
+                            title = "Create Shopping List",
+                            submitButtonText = "Create Shopping List",
+                            state = viewModel,
+                            onSubmit = {
+                                viewModel.saveShoppingList {
+                                    navController.popBackStack()
+                                }
+                            },
+                            onBack = { navController.popBackStack() }
+                        )
+                    }
+                    composable<ShoppingListListRoute> {
+                        ShoppingListListScreen(
+                            onBack = { navController.popBackStack() },
+                            onCreateClick = { navController.navigate(CreateShoppingListRoute) },
+                            onListClick = { listId ->
+                                navController.navigate(ShoppingListDetailRoute(listId))
+                            },
+                            onEditClick = { listId ->
+                                navController.navigate(EditShoppingListRoute(listId))
+                            }
+                        )
+                    }
+                    composable<EditShoppingListRoute> {
+                        val viewModel: EditShoppingListViewModel = hiltViewModel()
+                        ShoppingListFormScreen(
+                            title = "Edit Shopping List",
+                            submitButtonText = "Save Changes",
+                            state = viewModel,
+                            onSubmit = {
+                                viewModel.updateShoppingList {
+                                    navController.popBackStack()
+                                }
+                            },
+                            onBack = { navController.popBackStack() }
+                        )
+                    }
+                    composable<ShoppingListDetailRoute> {
+                        ShoppingListDetailScreen(
+                            onBack = { navController.popBackStack() },
+                            onEditClick = { listId ->
+                                navController.navigate(EditShoppingListRoute(listId))
+                            }
                         )
                     }
                 }

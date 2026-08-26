@@ -1,22 +1,21 @@
 package com.example.shoppinglist.ui
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
@@ -33,61 +32,58 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.shoppinglist.dtos.ProductDto
-import com.example.shoppinglist.viewmodels.ProductListViewModel
+import com.example.shoppinglist.dtos.ShoppingListWithProducts
+import com.example.shoppinglist.viewmodels.ShoppingListListViewModel
+import java.text.SimpleDateFormat
+import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductListScreen(
-    modifier: Modifier = Modifier,
-    viewModel: ProductListViewModel = hiltViewModel(),
-    onProductClick: (ProductDto) -> Unit = {},
-    onAddProductClick: () -> Unit = {},
-    onEditProductClick: (Int) -> Unit = {},
-    onCreateShoppingListClick: () -> Unit = {},
-    onViewShoppingListsClick: () -> Unit = {}
+fun ShoppingListListScreen(
+    onBack: () -> Unit,
+    onCreateClick: () -> Unit,
+    onListClick: (Int) -> Unit,
+    onEditClick: (Int) -> Unit,
+    viewModel: ShoppingListListViewModel = hiltViewModel()
 ) {
-    val products by viewModel.products.collectAsState()
+    val shoppingLists by viewModel.shoppingLists.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Products") },
-                actions = {
-                    IconButton(onClick = onViewShoppingListsClick) {
-                        Icon(Icons.AutoMirrored.Filled.List, contentDescription = "View Shopping Lists")
-                    }
-                    IconButton(onClick = onCreateShoppingListClick) {
-                        Icon(Icons.Default.Add, contentDescription = "Create Shopping List")
+                title = { Text("Shopping Lists") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onAddProductClick) {
-                Icon(Icons.Default.Add, contentDescription = "Add Product")
+            FloatingActionButton(onClick = onCreateClick) {
+                Icon(Icons.Default.Add, contentDescription = "Create Shopping List")
             }
-        },
-        modifier = modifier
+        }
     ) { innerPadding ->
-        LazyColumn(modifier = Modifier.padding(innerPadding)) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
             items(
-                items = products,
-                key = { it.id }
-            ) { product ->
+                items = shoppingLists,
+                key = { it.shoppingList.id }
+            ) { listWithProducts ->
                 val dismissState = rememberSwipeToDismissBoxState()
 
                 LaunchedEffect(dismissState.currentValue) {
                     if (dismissState.currentValue == SwipeToDismissBoxValue.EndToStart) {
-                        viewModel.deleteProduct(product.id)
+                        viewModel.deleteShoppingList(listWithProducts.shoppingList.id)
                     }
                 }
 
@@ -116,35 +112,12 @@ fun ProductListScreen(
                         }
                     }
                 ) {
-                    var showMenu by remember { mutableStateOf(false) }
-
                     Box(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
-                        ProductItem(
-                            product = product,
-                            modifier = Modifier.combinedClickable(
-                                onClick = { onProductClick(product) },
-                                onLongClick = { showMenu = true }
-                            )
+                        ShoppingListItemRow(
+                            listWithProducts = listWithProducts,
+                            onClick = { onListClick(listWithProducts.shoppingList.id) },
+                            onEditClick = { onEditClick(listWithProducts.shoppingList.id) }
                         )
-                        DropdownMenu(
-                            expanded = showMenu,
-                            onDismissRequest = { showMenu = false }
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text("Edit") },
-                                onClick = {
-                                    showMenu = false
-                                    onEditProductClick(product.id)
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text("Delete") },
-                                onClick = {
-                                    showMenu = false
-                                    viewModel.deleteProduct(product.id)
-                                }
-                            )
-                        }
                     }
                 }
                 HorizontalDivider()
@@ -154,22 +127,39 @@ fun ProductListScreen(
 }
 
 @Composable
-fun ProductItem(
-    product: ProductDto,
-    modifier: Modifier = Modifier
+fun ShoppingListItemRow(
+    listWithProducts: ShoppingListWithProducts,
+    onClick: () -> Unit,
+    onEditClick: () -> Unit
 ) {
-    Column(
-        modifier = modifier
+    val dateFormatter = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
+    Row(
+        modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .clickable(onClick = onClick)
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = product.name,
-            style = MaterialTheme.typography.titleMedium
-        )
-        Text(
-            text = "Quantity: ${product.quantity}",
-            style = MaterialTheme.typography.bodyMedium
-        )
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = listWithProducts.shoppingList.name,
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(
+                text = "Created: ${dateFormatter.format(listWithProducts.shoppingList.creationDate)}",
+                style = MaterialTheme.typography.bodySmall
+            )
+            Text(
+                text = "Items: ${listWithProducts.items.size}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Text(
+                text = "Status: ${listWithProducts.shoppingList.status}",
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+        IconButton(onClick = onEditClick) {
+            Icon(Icons.Default.Edit, contentDescription = "Edit")
+        }
     }
 }

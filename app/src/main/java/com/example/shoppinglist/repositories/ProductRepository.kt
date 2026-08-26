@@ -12,13 +12,16 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ProductRepository {
     @Insert
-    suspend fun insert(product: Product)
+    suspend fun insert(product: Product): Long
 
     @Update
     suspend fun update(product: Product)
 
     @Query("DELETE FROM products WHERE id = :id")
     suspend fun deleteById(id: Int)
+
+    @Query("DELETE FROM products WHERE id IN (:ids) AND is_tracked = 0")
+    suspend fun deleteNonTrackedByIds(ids: List<Int>)
 
     @Query("""
         SELECT 
@@ -29,6 +32,7 @@ interface ProductRepository {
             active_notification_id AS activeNotificationId,
             is_tracked AS isTracked
         FROM products
+        WHERE is_tracked = 1
     """)
     fun getProductList(): Flow<List<ProductDto>>
 

@@ -37,8 +37,8 @@ class EditProductViewModel @Inject constructor(
                 originalProductDto = product
                 name = product.name
                 quantity = product.quantity.toString()
-                intervalValue = product.intervalValue.toString()
-                intervalUnit = product.intervalUnit
+                intervalValue = product.intervalValue?.toString() ?: ""
+                intervalUnit = product.intervalUnit ?: IntervalUnit.DAYS
             }
         }
     }

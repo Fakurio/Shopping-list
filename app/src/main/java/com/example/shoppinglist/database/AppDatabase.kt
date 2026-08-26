@@ -9,7 +9,7 @@ import com.example.shoppinglist.entities.ShoppingListItem
 import com.example.shoppinglist.repositories.ProductRepository
 import com.example.shoppinglist.repositories.ShoppingListRepository
 
-@Database(entities = [Product::class, ShoppingList::class, ShoppingListItem::class], version = 2)
+@Database(entities = [Product::class, ShoppingList::class, ShoppingListItem::class], version = 4)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun shoppingListRepository(): ShoppingListRepository

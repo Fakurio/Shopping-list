@@ -12,14 +12,15 @@ data class ProductDto(
     val name: String,
     val quantity: Long,
     val lastBoughtDate: Date?,
-    val intervalValue: Int,
-    val intervalUnit: IntervalUnit,
+    val intervalValue: Int?,
+    val intervalUnit: IntervalUnit?,
     val activeNotificationId: UUID?,
     val isTracked: Boolean
 ) : Parcelable
 
 val ProductDto.formattedInterval: String
     get() {
+        if (intervalValue == null || intervalUnit == null) return "Not set"
         val unitName = intervalUnit.name.lowercase()
         val pluralUnit = if (intervalValue == 1) {
             unitName.removeSuffix("s")
