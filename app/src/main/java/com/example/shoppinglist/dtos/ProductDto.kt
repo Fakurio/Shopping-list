@@ -4,7 +4,6 @@ import android.os.Parcelable
 import com.example.shoppinglist.enums.IntervalUnit
 import kotlinx.parcelize.Parcelize
 import java.util.Date
-import java.util.UUID
 
 @Parcelize
 data class ProductDto(
@@ -14,8 +13,8 @@ data class ProductDto(
     val lastBoughtDate: Date?,
     val intervalValue: Int?,
     val intervalUnit: IntervalUnit?,
-    val activeNotificationId: UUID?,
-    val isTracked: Boolean
+    val isTracked: Boolean,
+    val notificationsEnabled: Boolean
 ) : Parcelable
 
 val ProductDto.formattedInterval: String

@@ -10,9 +10,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navDeepLink
 import com.example.shoppinglist.ui.ProductDetailScreen
 import com.example.shoppinglist.ui.ProductFormScreen
 import com.example.shoppinglist.ui.ProductListScreen
+import com.example.shoppinglist.ui.RestockActionScreen
 import com.example.shoppinglist.ui.ShoppingListDetailScreen
 import com.example.shoppinglist.ui.ShoppingListFormScreen
 import com.example.shoppinglist.ui.ShoppingListListScreen
@@ -29,6 +31,9 @@ object ProductListRoute
 
 @Serializable
 data class ProductDetailRoute(val productId: Int)
+
+@Serializable
+data class RestockActionRoute(val productId: Int)
 
 @Serializable
 object AddProductRoute
@@ -161,6 +166,19 @@ class MainActivity : ComponentActivity() {
                             onBack = { navController.popBackStack() },
                             onEditClick = { listId ->
                                 navController.navigate(EditShoppingListRoute(listId))
+                            }
+                        )
+                    }
+                    composable<RestockActionRoute>(
+                        deepLinks = listOf(
+                            navDeepLink<RestockActionRoute>(basePath = "shoppinglist://restock")
+                        )
+                    ) {
+                        RestockActionScreen(
+                            onDismiss = {
+                                navController.navigate(ProductListRoute) {
+                                    popUpTo(ProductListRoute) { inclusive = true }
+                                }
                             }
                         )
                     }

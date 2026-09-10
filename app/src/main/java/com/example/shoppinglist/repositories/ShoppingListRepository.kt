@@ -39,6 +39,9 @@ interface ShoppingListRepository {
     @Query("SELECT * FROM shopping_list_items WHERE listId = :listId")
     suspend fun getItemsByListId(listId: Int): List<ShoppingListItem>
 
+    @Query("SELECT * FROM shopping_list_items WHERE listId = :listId AND productId = :productId LIMIT 1")
+    suspend fun getItemByListAndProductId(listId: Int, productId: Int): ShoppingListItem?
+
     @Delete
     suspend fun delete(shoppingList: ShoppingList)
 
@@ -56,6 +59,9 @@ interface ShoppingListRepository {
 
     @Query("DELETE FROM shopping_lists WHERE id = :id")
     suspend fun deleteById(id: Int)
+
+    @Query("SELECT * FROM shopping_lists ORDER BY creationDate DESC LIMIT 1")
+    suspend fun getLatestShoppingList(): ShoppingList?
 
     @Transaction
     @Query("SELECT * FROM shopping_lists ORDER BY creationDate DESC")

@@ -1,11 +1,15 @@
 package com.example.shoppinglist.entities
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.example.shoppinglist.enums.ShoppingListStatus
 import java.util.Date
 
-@Entity(tableName = "shopping_lists")
+@Entity(
+    tableName = "shopping_lists",
+    indices = [Index(value = ["name"], unique = true)]
+)
 data class ShoppingList (
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val name: String,

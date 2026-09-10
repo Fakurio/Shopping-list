@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.shoppinglist.dtos.ProductDto
 import com.example.shoppinglist.entities.Product
 import com.example.shoppinglist.enums.IntervalUnit
+import com.example.shoppinglist.notifications.NotificationHelper
 import com.example.shoppinglist.repositories.ProductRepository
 import com.example.shoppinglist.ui.ProductFormState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,6 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class EditProductViewModel @Inject constructor(
     private val productRepository: ProductRepository,
+    private val notificationHelper: NotificationHelper,
     savedStateHandle: SavedStateHandle
 ) : ViewModel(), ProductFormState {
 
@@ -72,9 +74,22 @@ class EditProductViewModel @Inject constructor(
                 lastBoughtDate = currentOriginal.lastBoughtDate,
                 intervalValue = intervalValue.toInt(),
                 intervalUnit = intervalUnit,
-                activeNotificationId = currentOriginal.activeNotificationId,
-                isTracked = currentOriginal.isTracked
+                isTracked = currentOriginal.isTracked,
+                notificationsEnabled = currentOriginal.notificationsEnabled
             )
+
+            if (updatedProduct.notificationsEnabled && 
+                (updatedProduct.name != currentOriginal.name || 
+                 updatedProduct.intervalValue != currentOriginal.intervalValue || 
+                 updatedProduct.intervalUnit != currentOriginal.intervalUnit)) {
+                
+                notificationHelper.scheduleNotification(
+                    updatedProduct.id,
+                    updatedProduct.name,
+                    updatedProduct.intervalValue ?: 0,
+                    updatedProduct.intervalUnit ?: IntervalUnit.DAYS
+                )
+            }
             productRepository.update(updatedProduct)
         }
     }

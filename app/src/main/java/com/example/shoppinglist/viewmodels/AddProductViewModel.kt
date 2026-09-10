@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.shoppinglist.entities.Product
 import com.example.shoppinglist.enums.IntervalUnit
+import com.example.shoppinglist.notifications.NotificationHelper
 import com.example.shoppinglist.repositories.ProductRepository
 import com.example.shoppinglist.ui.ProductFormState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,7 +16,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddProductViewModel @Inject constructor(
-    private val productRepository: ProductRepository
+    private val productRepository: ProductRepository,
+    private val notificationHelper: NotificationHelper
 ) : ViewModel(), ProductFormState {
 
     // Form State
@@ -51,10 +53,15 @@ class AddProductViewModel @Inject constructor(
                 lastBoughtDate = null,
                 intervalValue = intervalValue.toInt(),
                 intervalUnit = intervalUnit,
-                activeNotificationId = null,
-                isTracked = true
+                isTracked = true,
+                notificationsEnabled = true
             )
-            productRepository.insert(product)
+            val id = productRepository.insert(product).toInt()
+
+            notificationHelper.scheduleNotification(
+                id, name, intervalValue.toInt(), intervalUnit
+            )
+            
             resetForm()
         }
     }

@@ -19,7 +19,9 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 data class SelectedProduct(
@@ -86,6 +88,14 @@ class CreateShoppingListViewModel @Inject constructor(
         }
     }
 
+    override fun onProductQuantityChange(product: SelectedProduct, newQuantity: String) {
+        val index = _selectedProducts.indexOf(product)
+        if (index != -1) {
+            val qty = newQuantity.toIntOrNull() ?: 0
+            _selectedProducts[index] = product.copy(quantity = qty)
+        }
+    }
+
     override fun removeProduct(product: SelectedProduct) {
         _selectedProducts.remove(product)
     }
@@ -94,10 +104,16 @@ class CreateShoppingListViewModel @Inject constructor(
         if (listName.isBlank() || _selectedProducts.isEmpty()) return
 
         viewModelScope.launch {
+            val currentDate = Date()
+            val dateFormatter = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+            val formattedDate = dateFormatter.format(currentDate)
+            
+            val finalListName = "${listName.trim()}_$formattedDate"
+
             val shoppingList = ShoppingList(
-                name = listName,
+                name = finalListName,
                 status = ShoppingListStatus.ACTIVE,
-                creationDate = Date()
+                creationDate = currentDate
             )
             
             val items = _selectedProducts.map { selected ->
@@ -109,8 +125,8 @@ class CreateShoppingListViewModel @Inject constructor(
                         lastBoughtDate = null,
                         intervalValue = null,
                         intervalUnit = null,
-                        activeNotificationId = null,
-                        isTracked = false
+                        isTracked = false,
+                        notificationsEnabled = false
                     )
                     productRepository.insert(newProduct).toInt()
                 } else {

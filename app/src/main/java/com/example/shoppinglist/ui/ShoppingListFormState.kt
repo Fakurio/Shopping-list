@@ -21,5 +21,6 @@ interface ShoppingListFormState {
     fun onAvailableProductQuantityChange(newQuantity: String)
     fun addCustomProductAction()
     fun addExistingProductAction()
+    fun onProductQuantityChange(product: SelectedProduct, newQuantity: String)
     fun removeProduct(product: SelectedProduct)
 }

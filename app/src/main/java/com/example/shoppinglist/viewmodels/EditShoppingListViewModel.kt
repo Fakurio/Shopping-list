@@ -89,6 +89,14 @@ class EditShoppingListViewModel @Inject constructor(
         }
     }
 
+    override fun onProductQuantityChange(product: SelectedProduct, newQuantity: String) {
+        val index = _selectedProducts.indexOf(product)
+        if (index != -1) {
+            val qty = newQuantity.toIntOrNull() ?: 0
+            _selectedProducts[index] = product.copy(quantity = qty)
+        }
+    }
+
     override fun removeProduct(product: SelectedProduct) {
         _selectedProducts.remove(product)
     }
@@ -108,8 +116,8 @@ class EditShoppingListViewModel @Inject constructor(
                         lastBoughtDate = null,
                         intervalValue = null,
                         intervalUnit = null,
-                        activeNotificationId = null,
-                        isTracked = false
+                        isTracked = false,
+                        notificationsEnabled = false
                     )
                     productRepository.insert(newProduct).toInt()
                 } else {

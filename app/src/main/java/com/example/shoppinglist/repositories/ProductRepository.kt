@@ -29,8 +29,8 @@ interface ProductRepository {
             last_bought_date AS lastBoughtDate, 
             interval_value AS intervalValue, 
             interval_unit AS intervalUnit,
-            active_notification_id AS activeNotificationId,
-            is_tracked AS isTracked
+            is_tracked AS isTracked,
+            notifications_enabled AS notificationsEnabled
         FROM products
         WHERE is_tracked = 1
     """)
@@ -42,8 +42,8 @@ interface ProductRepository {
             last_bought_date AS lastBoughtDate, 
             interval_value AS intervalValue, 
             interval_unit AS intervalUnit,
-            active_notification_id AS activeNotificationId,
-            is_tracked AS isTracked
+            is_tracked AS isTracked,
+            notifications_enabled AS notificationsEnabled
         FROM products
         WHERE id = :id
     """)

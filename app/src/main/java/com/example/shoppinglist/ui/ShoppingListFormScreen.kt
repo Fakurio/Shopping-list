@@ -1,7 +1,6 @@
 package com.example.shoppinglist.ui
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -177,23 +176,24 @@ fun ShoppingListFormScreen(
             items(state.selectedProducts) { item ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Column(
+                    Text(
+                        text = item.name.trim(),
+                        style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = item.name.trim(),
-                            style = MaterialTheme.typography.bodyLarge,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Text(
-                            text = "Quantity: ${item.quantity}",
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    }
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    OutlinedTextField(
+                        value = if (item.quantity == 0) "" else item.quantity.toString(),
+                        onValueChange = { state.onProductQuantityChange(item, it) },
+                        label = { Text("Qty") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.width(70.dp),
+                        singleLine = true
+                    )
                     IconButton(onClick = { state.removeProduct(item) }) {
                         Icon(Icons.Default.Delete, contentDescription = "Remove")
                     }
